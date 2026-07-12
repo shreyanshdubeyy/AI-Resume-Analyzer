@@ -1,4 +1,5 @@
-
+import re
+import json
 from fastapi import FastAPI, UploadFile, File, Form
 import fitz
 import os
@@ -48,10 +49,40 @@ async def upload_resume(
     for page in pdf:
         text += page.get_text()
 
-    prompt = f"""
-You are an expert ATS resume reviewer.
+    # Extract email
+    email_match = re.search(
+        r'[\w\.-]+@[\w\.-]+',
+        text
+    )
 
-Analyze the resume against the job description.
+    email = email_match.group(0) if email_match else "Not Found"
+
+    # Extract phone number
+    phone_match = re.search(
+        r'(\+?\d[\d\s-]{9,15})',
+        text
+    )
+
+    phone = phone_match.group(0) if phone_match else "Not Found"
+
+    # Extract first line as possible name
+    lines = [
+        line.strip()
+        for line in text.split("\n")
+        if line.strip()
+    ]
+
+    candidate_name = lines[0] if lines else "Not Found"
+
+    prompt = f"""
+You are an expert ATS resume reviewer and technical recruiter.
+
+Analyze the following resume against the given job description.
+
+Candidate Information:
+Name: {candidate_name}
+Email: {email}
+Phone: {phone}
 
 Resume:
 {text}
@@ -59,18 +90,46 @@ Resume:
 Job Description:
 {job_description}
 
-Return JSON format:
+Return ONLY valid JSON with this structure:
 
-1. ATS Match Score out of 100
-2. Matching Skills
-3. Missing Keywords/Skills
-4. Resume Improvement Suggestions
+Return ONLY valid JSON with this structure:
 
-Give the response in JSON format.
+{{
+  "Candidate Name": "",
+  "Email": "",
+  "Phone": "",
+  "ATS Match Score": 0,
+  "Resume Summary": "",
+  "Matching Skills": [],
+  "Missing Keywords/Skills": [],
+  "Strengths": [],
+  "Weaknesses": [],
+  "Resume Improvement Suggestions": [],
+  "Recommended Technologies": [],
+  "Interview Questions": {{
+    "Technical Questions": [],
+    "HR Questions": [],
+    "Project Questions": []
+  }}
+}}
+
+Rules:
+- ATS score should be between 0 and 100.
+- Resume Summary should be a short professional recruiter-style summary.
+- Mention candidate profile, technical skills and overall suitability.
+- Evaluate based on skills, projects, experience, and keywords.
+- Suggestions should be practical and specific.
+- Identify missing skills required for the job.
+- Act like a professional recruiter.
+- Generate interview questions based on candidate skills, projects and job description.
+- Include technical, HR and project-based questions.
+- Questions should be relevant for an actual interview.
+- Return ONLY valid JSON.
 """
 
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
+        response_format={"type": "json_object"},
         messages=[
             {
                 "role": "user",
@@ -79,11 +138,18 @@ Give the response in JSON format.
         ]
     )
 
-    analysis = response.choices[0].message.content
+    analysis_json = json.loads(
+        response.choices[0].message.content
+    )
+
+    # Override with extracted values
+    analysis_json["Candidate Name"] = candidate_name
+    analysis_json["Email"] = email
+    analysis_json["Phone"] = phone
 
     return {
         "filename": file.filename,
-        "analysis": analysis
+        "analysis": analysis_json
     }
 
 @app.get("/test-ai")
