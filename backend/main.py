@@ -34,7 +34,7 @@ def home():
 @app.post("/upload-resume")
 async def upload_resume(
     file: UploadFile = File(...),
-    job_description: str = Form(...)
+    job_description: str = Form("")
 ):
 
     contents = await file.read()
@@ -106,11 +106,7 @@ Return ONLY valid JSON with this structure:
   "Weaknesses": [],
   "Resume Improvement Suggestions": [],
   "Recommended Technologies": [],
-  "Interview Questions": {{
-    "Technical Questions": [],
-    "HR Questions": [],
-    "Project Questions": []
-  }}
+
 }}
 
 Rules:
@@ -121,9 +117,19 @@ Rules:
 - Suggestions should be practical and specific.
 - Identify missing skills required for the job.
 - Act like a professional recruiter.
+- Generate an ATS optimized version of the resume.
+- Rewrite the professional summary for the target role.
+- Suggest skill additions based on missing keywords.
+- Improve project descriptions for ATS optimization.
+- Do not invent fake experience or fake projects.
+- Only optimize existing content and recommend additions.
 - Generate interview questions based on candidate skills, projects and job description.
 - Include technical, HR and project-based questions.
 - Questions should be relevant for an actual interview.
+If no job description is provided:
+- Analyze the resume against general industry standards.
+- Estimate ATS quality for generic software engineering and AI/ML roles.
+- Suggest missing technologies and improvements accordingly.
 - Return ONLY valid JSON.
 """
 
