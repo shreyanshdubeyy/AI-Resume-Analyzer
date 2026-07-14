@@ -1,19 +1,32 @@
-import Footer from "./components/Footer";
+import SplashScreen from "./SplashScreen";
 import autoTable from "jspdf-autotable";
 import jsPDF from "jspdf";
+import Footer from "./components/Footer";
+import { useState, useEffect, useRef } from "react";
 
 import "react-circular-progressbar/dist/styles.css";
 import {
   CircularProgressbar,
   buildStyles
 } from "react-circular-progressbar";
-import { useState, useRef } from "react";
+
 
 function App() {
+
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setShowSplash(false);
+  }, 2500);
+
+  return () => clearTimeout(timer);
+}, []);
   const [file, setFile] = useState(null);
+  const [processing, setProcessing] = useState(false);
   const [jobDescription, setJobDescription] = useState("");
   const [analysis, setAnalysis] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [dragActive, setDragActive] = useState(false);
 
@@ -30,6 +43,7 @@ function App() {
     formData.append("job_description", jobDescription || "");
 
     setLoading(true);
+    setProcessing(true);
     setLoadingMessage("Extracting resume content...");
 setTimeout(() => {
   setLoadingMessage("Analyzing skills...");
@@ -91,7 +105,8 @@ setAnalysis(parsedAnalysis);
     }
 
     setLoading(false);
-    setLoadingMessage("");
+setProcessing(false);
+setLoadingMessage("");
   };
 const handleDrag = (e) => {
   e.preventDefault();
@@ -402,10 +417,36 @@ if (analysis["Interview Questions"]) {
     "AI_Resume_Analysis_Report.pdf"
   );
 };
+if (showSplash) {
+  return <SplashScreen />;
+}
+
+if (processing) {
+  return (
+    <div className="h-screen flex flex-col justify-center items-center bg-gradient-to-br from-slate-950 via-blue-950 to-black">
+      
+      <h1 className="text-5xl font-bold text-white mb-8">
+        AI Resume Analyzer
+      </h1>
+
+      <div className="w-96 h-2 bg-white/10 rounded-full overflow-hidden">
+        <div className="progress-bar bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 h-full"></div>
+      </div>
+
+      <div className="mt-10 space-y-4 text-cyan-300 text-lg">
+        <p className="animate-pulse">{loadingMessage}</p>
+      </div>
+
+    </div>
+  );
+}
+if (loading) {
+  return <SplashScreen />;
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900">
-
+ {!analysis && (
       <div className="max-w-4xl mx-auto">
 
         
@@ -480,10 +521,13 @@ shadow-2xl
   : "Analyze Resume"}
           </button>
 
-        </div>
+                </div>
 
+      </div>
+    )}
 
-        {analysis && (
+    {analysis && (
+      <div className="max-w-4xl mx-auto mt-8">
 
           <div className="mt-8 space-y-6">
             <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-white/10 text-white">
@@ -790,19 +834,15 @@ shadow-2xl
 
             </div>
 
-
           </div>
 
-        )}
-
       </div>
+    )}
 
-      <Footer />
+    <Footer />
 
-
-    </div>
-  );
+  </div>
+);
 }
-
 
 export default App;

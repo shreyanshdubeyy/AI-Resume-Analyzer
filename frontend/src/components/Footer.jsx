@@ -1,19 +1,7 @@
 function Footer() {
   return (
-    <footer>
-      <p>
-        © 2026 AI Resume Analyzer | Built & Developed by Shreyansh Dubey
-      </p>
-
-      <p>
-        <a 
-          href="https://github.com/shreyanshdubeyy"
-          target="_blank"
-          rel="noreferrer"
-        >
-          GitHub Repository
-        </a>
-      </p>
+    <footer className="text-center py-4 text-gray-400">
+      © 2026 AI Resume Analyzer | Built & Developed by Shreyansh Dubey
     </footer>
   );
 }
