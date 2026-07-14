@@ -105,11 +105,11 @@ Return ONLY valid JSON with this structure:
   "Strengths": [],
   "Weaknesses": [],
 
-"Interview Questions": {
+"Interview Questions": {{
   "Technical Questions": [],
   "HR Questions": [],
   "Project Questions": []
-},
+}},
 
 "Resume Improvement Suggestions": [],
 "Recommended Technologies": []
