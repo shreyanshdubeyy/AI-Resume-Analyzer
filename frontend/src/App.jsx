@@ -423,23 +423,76 @@ if (showSplash) {
 
 if (processing) {
   return (
-    <div className="h-screen flex flex-col justify-center items-center bg-gradient-to-br from-slate-950 via-blue-950 to-black">
-      
-      <h1 className="text-5xl font-bold text-white mb-8">
-        AI Resume Analyzer
+    <div className="
+      h-screen
+      flex
+      flex-col
+      justify-center
+      items-center
+      text-center
+      bg-gradient-to-br
+      from-slate-950
+      via-blue-950
+      to-black
+      px-6
+    ">
+
+      <h1 className="text-4xl md:text-6xl font-bold text-white text-center">
+        🧠 AI Analysis in Progress
       </h1>
 
-      <div className="w-96 h-2 bg-white/10 rounded-full overflow-hidden">
+      <p className="text-slate-400 mt-4 text-center">
+        Processing your resume with advanced NLP models
+      </p>
+
+      <div className="w-[85%] max-w-md h-2 bg-white/10 rounded-full overflow-hidden mx-auto mt-8">
         <div className="progress-bar bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 h-full"></div>
       </div>
 
-      <div className="mt-10 space-y-4 text-cyan-300 text-lg">
-        <p className="animate-pulse">{loadingMessage}</p>
+      <div className="mt-10 w-full max-w-md space-y-4">
+
+        <div className={`p-4 rounded-2xl backdrop-blur-xl border ${
+          loadingMessage.includes("Extracting")
+            ? "bg-cyan-500/20 border-cyan-400"
+            : "bg-white/10 border-white/10"
+        } text-white`}>
+          📄 Extracting Resume Content
+        </div>
+
+        <div className={`p-4 rounded-2xl backdrop-blur-xl border ${
+          loadingMessage.includes("skills")
+            ? "bg-cyan-500/20 border-cyan-400"
+            : "bg-white/10 border-white/10"
+        } text-white`}>
+          🔍 Analyzing Skills & Keywords
+        </div>
+
+        <div className={`p-4 rounded-2xl backdrop-blur-xl border ${
+          loadingMessage.includes("ATS")
+            ? "bg-cyan-500/20 border-cyan-400"
+            : "bg-white/10 border-white/10"
+        } text-white`}>
+          📊 Calculating ATS Score
+        </div>
+
+        <div className={`p-4 rounded-2xl backdrop-blur-xl border ${
+          loadingMessage.includes("Interview")
+            ? "bg-cyan-500/20 border-cyan-400"
+            : "bg-white/10 border-white/10"
+        } text-white`}>
+          💼 Generating Interview Questions
+        </div>
+
+        <p className="text-cyan-300 text-center animate-pulse mt-6">
+          {loadingMessage}
+        </p>
+
       </div>
 
     </div>
   );
 }
+
 if (loading) {
   return <SplashScreen />;
 }
@@ -450,7 +503,8 @@ if (loading) {
       <div className="max-w-4xl mx-auto">
 
         
-         <div className="text-center mb-10">
+         
+<div className="text-center mb-10">
   <h1 className="text-5xl font-bold text-white">
     AI Resume Analyzer
   </h1>
