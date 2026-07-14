@@ -1,9 +1,12 @@
 
 import autoTable from "jspdf-autotable";
 import jsPDF from "jspdf";
-import { CircularProgressbar } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
 
+import "react-circular-progressbar/dist/styles.css";
+import {
+  CircularProgressbar,
+  buildStyles
+} from "react-circular-progressbar";
 import { useState, useRef } from "react";
 
 function App() {
@@ -11,22 +14,41 @@ function App() {
   const [jobDescription, setJobDescription] = useState("");
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   const [dragActive, setDragActive] = useState(false);
+
   const fileInputRef = useRef(null);
 
   const uploadResume = async () => {
-    if (!file || !jobDescription) {
+    if (!file) {
       alert("Please upload your resume");
       return;
     }
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("job_description", jobDescription);
+    formData.append("job_description", jobDescription || "");
 
     setLoading(true);
+    setLoadingMessage("Extracting resume content...");
+setTimeout(() => {
+  setLoadingMessage("Analyzing skills...");
+}, 1500);
 
+setTimeout(() => {
+  setLoadingMessage("Calculating ATS score...");
+}, 3000);
+
+setTimeout(() => {
+  setLoadingMessage("Generating interview questions...");
+}, 4500);
+
+setTimeout(() => {
+  setLoadingMessage("Preparing final report...");
+}, 6000);
     try {
+      console.log("File:", file);
+console.log("Job Description:", jobDescription);
      const response = await fetch(
   "https://ai-resume-analyzer-4nb9.onrender.com/upload-resume",
   {
@@ -34,11 +56,12 @@ function App() {
     body: formData,
   }
 );
-      
+
+
+console.log("Status:", response.status);
+
 
       const data = await response.json();
-
-console.log("AI RESPONSE:", data.analysis);
 
 const parsedAnalysis =
   typeof data.analysis === "string"
@@ -50,6 +73,14 @@ const parsedAnalysis =
       )
     : data.analysis;
 
+console.log("AI RESPONSE:", parsedAnalysis);
+console.log("Available Keys:", Object.keys(parsedAnalysis));
+
+console.log(
+  "Interview Questions:",
+  parsedAnalysis["Interview Questions"]
+);
+
 setAnalysis(parsedAnalysis);
 
 
@@ -60,6 +91,7 @@ setAnalysis(parsedAnalysis);
     }
 
     setLoading(false);
+    setLoadingMessage("");
   };
 const handleDrag = (e) => {
   e.preventDefault();
@@ -338,6 +370,7 @@ y += 15;
     "Resume Improvement Suggestions",
     analysis["Resume Improvement Suggestions"]
   );
+  
   // Interview Questions
 
 if (analysis["Interview Questions"]) {
@@ -371,7 +404,7 @@ if (analysis["Interview Questions"]) {
 };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900">
 
       <div className="max-w-4xl mx-auto">
 
@@ -381,13 +414,19 @@ if (analysis["Interview Questions"]) {
     AI Resume Analyzer
   </h1>
 
-  <p className="text-gray-300 mt-3 text-lg">
+  <p className="text-slate-300 mt-3 text-lg">
     Analyze your resume against any job description using AI
   </p>
 </div>
 
 
-        <div className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-xl p-8 border border-white/20">
+        <div className="
+bg-white/10
+backdrop-blur-xl
+border border-white/10
+rounded-3xl
+shadow-2xl
+">
 
   <div
   onDragEnter={handleDrag}
@@ -397,9 +436,9 @@ if (analysis["Interview Questions"]) {
   onClick={() => fileInputRef.current.click()}
   className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all
     ${dragActive
-      ? "border-blue-500 bg-blue-50"
-      : "border-gray-300 bg-gray-50"
-    }`}
+  ? "border-blue-400 bg-blue-500/20"
+  : "border-white/20 bg-white/5"
+}`}
 >
   <input
     ref={fileInputRef}
@@ -411,11 +450,11 @@ if (analysis["Interview Questions"]) {
 
   <div className="text-5xl mb-4">📄</div>
 
-  <p className="text-lg font-semibold">
+  <p className="text-lg font-semibold text-white">
     Drag & Drop your resume here
   </p>
 
-  <p className="text-gray-500 mt-2">
+  <p className="text-slate-400 mt-2">
     or click to browse files
   </p>
 
@@ -427,16 +466,18 @@ if (analysis["Interview Questions"]) {
 </div>
 
 <textarea
-  placeholder="Paste Job Description here..."
+  placeholder="Paste Job Description here (optional)"
   value={jobDescription}
   onChange={(e) => setJobDescription(e.target.value)}
-  className="border p-3 w-full mt-4 h-40"
+  className="border border-white/20 bg-white/5 text-white placeholder-slate-400 p-4 w-full mt-4 h-40 rounded-2xl backdrop-blur-xl"
 />
           <button
             onClick={uploadResume}
-           className="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition-all duration-300" 
+           className="mt-4 w-full bg-blue-600 hover:bg-blue-700 hover:scale-[1.02] text-white py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-blue-500/30" 
           >
-            {loading ? "🔍 Analyzing Resume..." : "Analyze Resume"}
+            {loading
+  ? `🔍 ${loadingMessage}`
+  : "Analyze Resume"}
           </button>
 
         </div>
@@ -445,13 +486,12 @@ if (analysis["Interview Questions"]) {
         {analysis && (
 
           <div className="mt-8 space-y-6">
-            <div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-200">
-
-  <h2 className="text-xl font-bold text-gray-700 mb-4">
+            <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-white/10 text-white">
+  <h2 className="text-xl font-bold text-slate-200 mb-4">
     👤 Candidate Profile
   </h2>
 
-  <div className="space-y-3 text-gray-700">
+  <div className="space-y-3 text-slate-200">
 
     <p>
       <span className="font-semibold">Name:</span>{" "}
@@ -473,54 +513,82 @@ if (analysis["Interview Questions"]) {
 </div>
 
 
-            <div className="bg-white rounded-3xl shadow-2xl p-8 text-center border border-gray-200">
+            <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-8 text-center border border-white/10 text-white">
 
-  <h2 className="text-xl font-semibold text-gray-600 uppercase tracking-wider">
+  <h2 className="text-xl font-semibold text-slate-300 uppercase tracking-wider">
     ATS Match Score
   </h2>
 
   <div className="mt-6">
    <div className="w-40 h-40 mx-auto mt-6">
   <CircularProgressbar
-    value={analysis["ATS Match Score"]}
-    text={`${analysis["ATS Match Score"]}%`}
-  />
+  value={analysis["ATS Match Score"]}
+  text={`${analysis["ATS Match Score"]}%`}
+  styles={buildStyles({
+    textColor:
+      analysis["ATS Match Score"] >= 80
+        ? "#4ade80"
+        : analysis["ATS Match Score"] >= 50
+        ? "#facc15"
+        : "#ef4444",
+
+    pathColor:
+      analysis["ATS Match Score"] >= 80
+        ? "#4ade80"
+        : analysis["ATS Match Score"] >= 50
+        ? "#facc15"
+        : "#ef4444",
+
+    trailColor: "#1e293b"
+  })}
+/>
 </div>
   
 
-  <p className="mt-6 text-gray-600">
+  <p className="mt-6 text-slate-300">
     Resume compatibility with the job description
   </p>
 
 </div>
  </div>
- <div className="bg-white rounded-xl shadow p-6">
+ <div className="bg-white/10 backdrop-blur-xl rounded-xl shadow-2xl p-6 border border-white/10 text-whit">
 
 <h2 className="text-xl font-bold mb-4">
 📄 Resume Summary
 </h2>
 
-<p className="text-gray-700 leading-relaxed">
+<p className="text-slate-200 leading-relaxed">
 {analysis["Resume Summary"]}
 </p>
 
 </div>
 
 
-            <div className="bg-green-100 text-green-800 px-4 py-2 rounded-full font-medium">
+           <div className="bg-white/10 backdrop-blur-xl rounded-xl shadow-2xl p-6 border border-white/10 text-white">
 
-              <h2 className="text-xl font-bold mb-3">
-                Skills Found
+              
+               <h2 className="text-2xl font-bold text-white mb-4"> Skills Found
               </h2>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3 mt-4">
 
                 {(analysis["Matching Skills"] || []).map(
                   (skill,index)=>(
                     <span
   key={index}
-  className="bg-green-100 text-green-800 px-4 py-2 rounded-full font-medium shadow-sm hover:scale-105 transition"
->
+  className="bg-green-500/20
+        text-green-300
+        px-4
+        py-2
+        rounded-full
+        font-medium
+        border
+        border-green-400/30
+        shadow-sm
+        hover:scale-105
+        transition-all
+        duration-300"
+        >
   {skill}
 </span>
                   )
@@ -532,7 +600,7 @@ if (analysis["Interview Questions"]) {
 
 
 
-            <div className="bg-white rounded-xl shadow p-6">
+            <div className="bg-white/10 backdrop-blur-xl rounded-xl shadow-2xl p-6 border border-white/10 text-whit">
 
   <h2 className="text-xl font-bold mb-4">
     Missing Skills
@@ -558,7 +626,7 @@ if (analysis["Interview Questions"]) {
 
 
 
-<div className="bg-white rounded-xl shadow p-6">
+<div className="bg-white/10 backdrop-blur-xl rounded-xl shadow-2xl p-6 border border-white/10 text-whit">
 
   <h2 className="text-xl font-bold mb-4">
     💪 Strengths
@@ -577,7 +645,7 @@ if (analysis["Interview Questions"]) {
 
 </div>
 
-<div className="bg-white rounded-xl shadow p-6">
+<div className="bg-white/10 backdrop-blur-xl rounded-xl shadow-2xl p-6 border border-white/10 text-whit">
 
   <h2 className="text-xl font-bold mb-4">
     ⚠️ Weaknesses
@@ -596,7 +664,7 @@ if (analysis["Interview Questions"]) {
 
 </div>
 
-<div className="bg-white rounded-xl shadow p-6">
+<div className="bg-white/10 backdrop-blur-xl rounded-xl shadow-2xl p-6 border border-white/10 text-whit">
 
   <h2 className="text-xl font-bold mb-4">
     🚀 Recommended Technologies
@@ -618,9 +686,9 @@ if (analysis["Interview Questions"]) {
   </div>
 
 </div>
-<div className="bg-white rounded-3xl shadow-xl p-6 border border-gray-200">
+<div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-white/10 text-whit">
 
-  <h2 className="text-xl font-bold text-gray-700 mb-5">
+  <h2 className="text-xl font-bold text-slate-200 mb-5">
     🎤 Interview Preparation
   </h2>
 
@@ -690,7 +758,7 @@ if (analysis["Interview Questions"]) {
 
 </div>
 
-            <div className="bg-white rounded-xl shadow p-6">
+            <div className="bg-white/10 backdrop-blur-xl rounded-xl shadow-2xl p-6 border border-white/10 text-whit">
 
               <h2 className="text-xl font-bold mb-3">
                 Suggestions
@@ -702,7 +770,7 @@ if (analysis["Interview Questions"]) {
   (item, index) => (
     <div
       key={index}
-      className="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition"
+      className="bg-gray-50 border border-white/10 rounded-xl p-4 shadow-sm hover:shadow-md transition"
     >
       <span className="font-medium">✓</span> {item}
     </div>
@@ -714,7 +782,7 @@ if (analysis["Interview Questions"]) {
 <div className="text-center mt-8">
   <button
     onClick={downloadReport}
-    className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg transition"
+    className="bg-green-600 hover:bg-green-700 hover:scale-105 text-white px-8 py-3 rounded-xl font-semibold shadow-lg transition-all duration-300"
   >
     Download PDF Report
   </button>
