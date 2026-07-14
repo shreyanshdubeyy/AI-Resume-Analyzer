@@ -1,4 +1,4 @@
-
+import Footer from "./components/Footer";
 import autoTable from "jspdf-autotable";
 import jsPDF from "jspdf";
 
@@ -797,8 +797,12 @@ shadow-2xl
 
       </div>
 
+      <Footer />
+
+
     </div>
   );
 }
+
 
 export default App;
