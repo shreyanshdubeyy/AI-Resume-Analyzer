@@ -104,8 +104,15 @@ Return ONLY valid JSON with this structure:
   "Missing Keywords/Skills": [],
   "Strengths": [],
   "Weaknesses": [],
-  "Resume Improvement Suggestions": [],
-  "Recommended Technologies": [],
+
+"Interview Questions": {
+  "Technical Questions": [],
+  "HR Questions": [],
+  "Project Questions": []
+},
+
+"Resume Improvement Suggestions": [],
+"Recommended Technologies": []
 
 }}
 
@@ -130,6 +137,17 @@ If no job description is provided:
 - Analyze the resume against general industry standards.
 - Estimate ATS quality for generic software engineering and AI/ML roles.
 - Suggest missing technologies and improvements accordingly.
+- Interview Questions field is mandatory.
+- Do not remove Interview Questions from JSON.
+- Always generate:
+  - 5 Technical Questions
+  - 3 HR Questions
+  - 3 Project Questions
+  - Interview Questions must never be empty.
+- Generate exactly:
+  - 5 Technical Questions
+  - 3 HR Questions
+  - 3 Project Questions
 - Return ONLY valid JSON.
 """
 
@@ -147,6 +165,27 @@ If no job description is provided:
     analysis_json = json.loads(
         response.choices[0].message.content
     )
+    if "Interview Questions" not in analysis_json:
+        analysis_json["Interview Questions"] = {
+        "Technical Questions": [
+            "Explain your project architecture.",
+            "What machine learning algorithms have you used?",
+            "What is overfitting?",
+            "Difference between CNN and RNN?",
+            "Explain your NLP pipeline."
+        ],
+        "HR Questions": [
+            "Tell me about yourself.",
+            "Why should we hire you?",
+            "Where do you see yourself in 5 years?"
+        ],
+        "Project Questions": [
+            "What challenges did you face in your project?",
+            "What improvements would you make?",
+            "What was your role in the project?"
+        ]
+    }
+    
 
     # Override with extracted values
     analysis_json["Candidate Name"] = candidate_name
