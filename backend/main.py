@@ -6,6 +6,7 @@ import os
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from groq import Groq
+from pydantic import BaseModel
 
 load_dotenv()
 
@@ -15,6 +16,8 @@ client = Groq(
 
 
 app = FastAPI()
+class ChatRequest(BaseModel):
+    message: str
 
 app.add_middleware(
     CORSMiddleware,
@@ -206,6 +209,50 @@ def test_ai():
                 {
                     "role": "user",
                     "content": "Explain artificial intelligence in one sentence."
+                }
+            ]
+        )
+
+        return {
+            "response": response.choices[0].message.content
+        }
+
+    except Exception as e:
+        return {
+            "error": str(e)
+
+
+            
+        }
+    
+    class ChatRequest(BaseModel):
+    message: str
+
+
+@app.post("/chat")
+async def chat(request: ChatRequest):
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {
+                    "role": "system",
+                    "content": """
+You are an intelligent AI assistant.
+
+You can help with:
+- Programming
+- Resume advice
+- Career guidance
+- Interview preparation
+- AI/ML concepts
+- Commerce and engineering careers
+- General knowledge
+"""
+                },
+                {
+                    "role": "user",
+                    "content": request.message
                 }
             ]
         )
