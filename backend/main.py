@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from groq import Groq
 from pydantic import BaseModel
+from typing import Optional
 
 load_dotenv()
 
@@ -225,9 +226,11 @@ def test_ai():
             
         }
     
-    class ChatRequest(BaseModel):
-     message: str
-     analysis: dict = {}
+    
+
+class ChatRequest(BaseModel):
+    message: str
+    analysis: Optional[dict] = {}
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
