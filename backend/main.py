@@ -227,7 +227,7 @@ def test_ai():
     
     class ChatRequest(BaseModel):
      message: str
-
+     analysis: dict = {}
 
 @app.post("/chat")
 async def chat(request: ChatRequest):
@@ -252,7 +252,19 @@ You can help with:
                 },
                 {
                     "role": "user",
-                    "content": request.message
+                    "content": f"""
+Resume Analysis:
+{request.analysis}
+
+User Question:
+{request.message}
+
+If the question is related to the resume, ATS score, skills,
+weaknesses, interview questions or improvements,
+use the resume analysis above.
+
+Otherwise answer normally.
+"""
                 }
             ]
         )
