@@ -135,14 +135,17 @@ const sendMessage = async () => {
         headers: {
           "Content-Type": "application/json",
         },
-       body: JSON.stringify({
-    message: userMessage,
+   body: JSON.stringify({
+    message: chatMessage,
     analysis: analysis
 }),
       }
     );
 
     const data = await response.json();
+    
+
+console.log("CHAT RESPONSE:", data);
 
     setChatHistory((prev) => [
       ...prev,
