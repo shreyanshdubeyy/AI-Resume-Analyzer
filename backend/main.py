@@ -226,7 +226,7 @@ def test_ai():
         }
     
     class ChatRequest(BaseModel):
-    message: str
+     message: str
 
 
 @app.post("/chat")
