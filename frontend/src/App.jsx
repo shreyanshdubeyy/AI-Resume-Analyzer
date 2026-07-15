@@ -25,6 +25,9 @@ useEffect(() => {
   const [processing, setProcessing] = useState(false);
   const [jobDescription, setJobDescription] = useState("");
   const [analysis, setAnalysis] = useState(null);
+  const [chatMessage, setChatMessage] = useState("");
+const [chatHistory, setChatHistory] = useState([]);
+const [chatLoading, setChatLoading] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
 const [loading, setLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
@@ -108,6 +111,56 @@ setAnalysis(parsedAnalysis);
 setProcessing(false);
 setLoadingMessage("");
   };
+const sendMessage = async () => {
+  if (!chatMessage.trim()) return;
+
+  const userMessage = chatMessage;
+
+  setChatHistory((prev) => [
+    ...prev,
+    {
+      role: "user",
+      text: userMessage,
+    },
+  ]);
+
+  setChatMessage("");
+  setChatLoading(true);
+
+  try {
+    const response = await fetch(
+      "https://ai-resume-analyzer-4nb9.onrender.com/chat",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    setChatHistory((prev) => [
+      ...prev,
+      {
+        role: "user",
+        text: userMessage,
+      },
+      {
+        role: "bot",
+        text: data.response,
+      },
+    ]);
+  } catch (error) {
+    console.log(error);
+  }
+
+  setChatLoading(false);
+};
+
 const handleDrag = (e) => {
   e.preventDefault();
   e.stopPropagation();
@@ -892,7 +945,59 @@ shadow-2xl
 
       </div>
     )}
+<div className="max-w-4xl mx-auto mt-10 bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/10 text-white">
 
+  <h2 className="text-3xl font-bold mb-6">
+    🤖 AI Assistant
+  </h2>
+
+  <div className="h-96 overflow-y-auto space-y-4 mb-6">
+
+    {chatHistory.map((chat, index) => (
+
+      <div key={index}>
+
+        {chat.role === "user" ? (
+          <div className="bg-blue-600 p-3 rounded-2xl ml-auto max-w-[80%]">
+            {chat.text}
+          </div>
+        ) : (
+          <div className="bg-white/10 p-3 rounded-2xl max-w-[80%]">
+            {chat.text}
+          </div>
+        )}
+
+      </div>
+
+    ))}
+
+    {chatLoading && (
+      <p className="text-cyan-300 animate-pulse">
+        AI is thinking...
+      </p>
+    )}
+
+  </div>
+
+  <div className="flex gap-3">
+
+    <input
+      value={chatMessage}
+      onChange={(e) => setChatMessage(e.target.value)}
+      placeholder="Ask anything..."
+      className="flex-1 bg-white/10 border border-white/10 rounded-xl p-3 text-white"
+    />
+
+    <button
+      onClick={sendMessage}
+      className="bg-blue-600 px-6 rounded-xl hover:bg-blue-700"
+    >
+      Send
+    </button>
+
+  </div>
+
+</div>
     <Footer />
 
   </div>
