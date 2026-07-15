@@ -17,8 +17,7 @@ client = Groq(
 
 
 app = FastAPI()
-class ChatRequest(BaseModel):
-    message: str
+
 
 app.add_middleware(
     CORSMiddleware,
