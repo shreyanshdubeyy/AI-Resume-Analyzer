@@ -299,7 +299,7 @@ GitHub:
 https://github.com/shreyanshdubeyy
 
 LinkedIn:
-https://linkedin.com/in/shreyansh‣dubey‣a553a3370
+https://linkedin.com/in/shreyansh-dubey-a553a3370
 ‣‣‣
 
 ⭐ If you find this project useful, consider giving it a star!
